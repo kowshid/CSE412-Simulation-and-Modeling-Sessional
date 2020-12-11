@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 """
 The task is to simulate an M/M/k system with a single queue.
 Complete the skeleton code and produce results for three experiments.
@@ -5,6 +6,10 @@ The study is mainly to show various results of a queue against its ro parameter.
 ro is defined as the ratio of arrival rate vs service rate.
 For the sake of comparison, while plotting results from simulation, also produce the analytical results.
 """
+=======
+#The task is to simulate an M/M/k system with a single queue.
+#We have to compare your experimental results with analytic results for this experiment
+>>>>>>> ee27823ffb540e739bd777bb7c0fda623f47ec29
 
 import heapq
 import random
@@ -27,8 +32,11 @@ class Params:
         self.k = k
     # Note lambd and mu are not mean value, they are rates i.e. (1/mean)
 
+<<<<<<< HEAD
 # Write more functions if required
 
+=======
+>>>>>>> ee27823ffb540e739bd777bb7c0fda623f47ec29
 # States and statistical counters
 class States:
     def __init__(self):
@@ -73,9 +81,13 @@ class States:
 
     def getResults(self, sim):
         return (self.avgQlength, self.avgQdelay, self.util)
+<<<<<<< HEAD
 
 # Write more functions if required
 
+=======
+		
+>>>>>>> ee27823ffb540e739bd777bb7c0fda623f47ec29
 class Event:
     def __init__(self, sim):
         self.eventType = None
@@ -135,7 +147,10 @@ class ArrivalEvent(Event):
             sim.scheduleEvent(DepartureEvent(departTime, sim))
 
 class DepartureEvent(Event):
+<<<<<<< HEAD
     # Write __init__ function
+=======
+>>>>>>> ee27823ffb540e739bd777bb7c0fda623f47ec29
     def __init__(self, eventTime, sim):
         self.eventTime = eventTime
         self.eventType = 'DEPARTURE'
@@ -195,7 +210,11 @@ class Simulator:
             if self.states != None:
                 self.states.update(self, event)
 
+<<<<<<< HEAD
             #print(event.eventTime, 'Event', event)
+=======
+            print(event.eventTime, 'Event', event)
+>>>>>>> ee27823ffb540e739bd777bb7c0fda623f47ec29
             self.simclock = event.eventTime
             event.process(self)
 

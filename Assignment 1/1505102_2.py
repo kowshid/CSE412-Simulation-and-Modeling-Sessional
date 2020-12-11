@@ -1,9 +1,14 @@
 """
 The task is to simulate an M/M/k system with a single queue.
+<<<<<<< HEAD
 Complete the skeleton code and produce results for three experiments.
 The study is mainly to show various results of a queue against its ro parameter.
 ro is defined as the ratio of arrival rate vs service rate.
 For the sake of comparison, while plotting results from simulation, also produce the analytical results.
+=======
+The study is mainly to show various results of a queue against its ro parameter.
+ro is defined as the ratio of arrival rate vs service rate.
+>>>>>>> ee27823ffb540e739bd777bb7c0fda623f47ec29
 """
 
 import heapq
@@ -256,4 +261,8 @@ def main():
     experiment2()
 
 if __name__ == "__main__":
+<<<<<<< HEAD
     main()
+=======
+    main()
+>>>>>>> ee27823ffb540e739bd777bb7c0fda623f47ec29
