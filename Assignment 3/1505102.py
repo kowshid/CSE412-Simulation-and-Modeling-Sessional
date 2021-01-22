@@ -1,13 +1,19 @@
 from scipy import stats
 from collections import defaultdict
 import math
+import seaborn as sns
+import matplotlib.pyplot as plt
+import random
 
 mult = 65539
 moddiv = math.pow(2, 31)
-alph = 0.1
 seed = 1505102
+colorCount = 20
+totalNumbers = [20, 500, 4000, 10000]
 
 randomNumbers = []
+colors = ["#" + ''.join([random.choice('0123456789ABCDEF') for j in range(6)])
+          for i in range(colorCount)]
 
 a = [[4529.4, 9044.9, 13568, 18091, 22615, 27892],
      [9044.9, 18097, 27139, 36187, 45234, 55789],
@@ -18,8 +24,17 @@ a = [[4529.4, 9044.9, 13568, 18091, 22615, 27892],
      ]
 b = [1 / 6, 5 / 24, 11 / 120, 19 / 720, 29 / 5040, 1 / 840]
 
-def randomNumberGeneration(N):
-    global randomNumbers
+def distributionPlot():
+    i = 0
+    for n in totalNumbers:
+        arr = randomNumberGenerator(n)
+        sns.distplot(arr, hist=False, kde=True, kde_kws={'shade': True, 'linewidth': 3}, color = colors[i], label=str(len(arr)))
+        plt.legend(labelcolor = colors[i])
+        i += 1
+    plt.xlabel("randomNumbers")
+    plt.show()
+
+def randomNumberGenerator(N):
     randomNumbers = [0.0] * N
     randomNumbers[0] = seed
 
@@ -30,10 +45,12 @@ def randomNumberGeneration(N):
         randomNumbers[i] /= moddiv
 
     # print(randomNumbers)
+    # distributionPlot(randomNumbers)
+    return randomNumbers
 
 def uniformityTest(N, k, alpha):
-    global randomNumbers
-    randomNumberGeneration(N)
+    randomNumbers = randomNumberGenerator(N)
+    # randomNumberGeneration(N)
 
     counts = [0] * k
 
@@ -48,16 +65,19 @@ def uniformityTest(N, k, alpha):
     chiSquared *= (k / N)
 
     print("Uniformity Test for k = ", k, " alpha = ", alpha)
+    print("chiSquared = ", chiSquared, stats.chi2.ppf(1 - alpha, k - 1))
     if chiSquared > stats.chi2.ppf(1 - alpha, k - 1):
         print("Rejected\n")
     else:
         print("Not Rejected\n")
 
-def serialTest(N, k, d, alpha):
-    global randomNumbers
-    randomNumberGeneration(N)
 
-    upIdx = math.floor(N/d)
+def serialTest(N, k, d, alpha):
+    randomNumbers = randomNumberGenerator(N)
+    # randomNumberGeneration(N)
+
+    l = math.floor(N / d)
+    upIdx = l * d
     counts = defaultdict(int)
 
     tuples = []
@@ -82,27 +102,31 @@ def serialTest(N, k, d, alpha):
     zeroCount = int(zeroCount)
 
     for i in range(zeroCount):
-        temp = - (N / math.pow(k, d))
+        temp = - (l / math.pow(k, d))
         chiSquared += math.pow(temp, 2)
 
     for key in counts:
-        temp = counts[key] - (N / math.pow(k, d))
+        temp = counts[key] - (l / math.pow(k, d))
         chiSquared += math.pow(temp, 2)
 
+    chiSquared *= (pow(k, d) / l)
+
     print("Serial Test for k = ", k, " d = ", d, " alpha = ", alpha)
-    if chiSquared > stats.chi2.ppf(1 - alpha, k - 1):
+    print(chiSquared, stats.chi2.ppf(1 - alpha, pow(k, d) - 1))
+    if chiSquared > stats.chi2.ppf(1 - alpha, pow(k, d) - 1):
         print("Rejected\n")
     else:
         print("Not Rejected\n")
 
+
 def runsTest(N, alpha):
-    global randomNumbers
-    randomNumberGeneration(N)
+    randomNumbers = randomNumberGenerator(N)
+    # randomNumberGeneration(N)
 
     runLen = [0] * 6
     currentRun = 1
-    for i in range(N-1):
-        if randomNumbers[i] < randomNumbers[i+1]:
+    for i in range(N - 1):
+        if randomNumbers[i] < randomNumbers[i + 1]:
             currentRun += 1
         else:
             currentRun = min(6, currentRun)
@@ -119,16 +143,17 @@ def runsTest(N, alpha):
 
     R /= N
 
-    print("R = ", R)
     print("Runs Test for alpha = ", alpha)
+    print("R =", R, stats.chi2.ppf(1 - alpha, 6))
     if R > stats.chi2.ppf(1 - alpha, 6):
         print("Rejected\n")
     else:
         print("Not Rejected\n")
 
+
 def correlationTest(N, alpha, j):
-    global randomNumbers
-    randomNumberGeneration(N)
+    randomNumbers = randomNumberGenerator(N)
+    # randomNumberGeneration(N)
 
     h = math.floor(((N - 1) / j) - 1)
     ro = 0.0
@@ -143,23 +168,33 @@ def correlationTest(N, alpha, j):
     Aj = ro / math.sqrt(roVariance)
 
     print("Correlation Test for alpha = ", alpha, " j = ", j)
+    print("Aj = ", abs(Aj), stats.norm.ppf(1 - (alpha / 2)))
     if abs(Aj) > stats.norm.ppf(1 - (alpha / 2)):
         print("Rejected\n")
     else:
         print("Not Rejected\n")
 
+
 def main():
-    n = 20
-    uniformityTest(n, 10, alph)
-    uniformityTest(n, 20, alph)
-    serialTest(n, 4, 2, alph)
-    serialTest(n, 4, 3, alph)
-    serialTest(n, 8, 2, alph)
-    serialTest(n, 8, 3, alph)
-    runsTest(n, alph)
-    correlationTest(n, alph, 1)
-    correlationTest(n, alph, 3)
-    correlationTest(n, alph, 5)
+    global randomNumbers, totalNumbers
+    random.seed(194)
+    # n = 20
+    alph = 0.1
+    # print(randomNumbers)
+    for n in totalNumbers:
+        print("Total Random Numbers: ", n)
+        randomNumbers = randomNumberGenerator(n)
+        uniformityTest(n, 10, alph)
+        uniformityTest(n, 20, alph)
+        serialTest(n, 4, 2, alph)
+        serialTest(n, 4, 3, alph)
+        serialTest(n, 8, 2, alph)
+        serialTest(n, 8, 3, alph)
+        runsTest(n, alph)
+        correlationTest(n, alph, 1)
+        correlationTest(n, alph, 3)
+        correlationTest(n, alph, 5)
+    distributionPlot()
 
 if __name__ == "__main__":
     main()
